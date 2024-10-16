@@ -20,7 +20,6 @@ jobs:
         run: |
           screen -dmL -Logfile /tmp/test.log -S testsession bash -c 'for i in $(seq 1 ${INPUT_DURATION}); do echo "Tick $i"; sleep 1; done'
           screen -ls
-          cat /tmp/test.log
 
       - name: Wait for session to complete with periodic messages
         run: |
