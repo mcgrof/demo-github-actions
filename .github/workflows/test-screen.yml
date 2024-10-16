@@ -1,7 +1,7 @@
 name: Test Screen Command
 
 on:
-  workflow_dispatch:  # Allows manual triggering via GitHub UI
+  workflow_dispatch:
     inputs:
       duration:
         description: 'How long to run (in seconds)'
@@ -10,7 +10,7 @@ on:
 
 jobs:
   test-screen:
-    runs-on: ubuntu-latest  # Change to 'self-hosted' if using your runner
+    runs-on: ubuntu-latest  # Change to 'self-hosted' if using your own runner
 
     steps:
       - name: Install screen
@@ -21,17 +21,20 @@ jobs:
           screen -dmL -Logfile /tmp/test.log -S testsession bash -c 'for i in $(seq 1 ${INPUT_DURATION}); do echo "Tick $i"; sleep 1; done'
 
       - name: Verify screen session is running
-        run: |
-          screen -ls
+        run: screen -ls
 
       - name: Display initial logs
         run: cat /tmp/test.log
 
-      - name: Wait for session to complete
+      - name: Wait for session to complete with periodic messages
         run: |
           while screen -list | grep -q "testsession"; do
-            echo "Waiting for screen session to finish..."; sleep 5;
+            echo "Waiting for screen session to finish..."
+            sleep 5
           done
+        # Force real-time printing by disabling output buffering
+        env:
+          PYTHONUNBUFFERED: 1
 
       - name: Display final logs
         run: cat /tmp/test.log
