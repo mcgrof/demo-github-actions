@@ -1,0 +1,64 @@
+name: Test Screen Command
+
+on:
+  workflow_dispatch:
+    inputs:
+      duration:
+        description: 'How long to run (in seconds)'
+        required: true
+        default: '30'
+      task_name:
+        description: 'Select the task to run'
+        required: true
+        type: choice
+        options:
+          - Task A
+          - Task B
+          - Task C
+
+jobs:
+  test-screen:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install screen
+        run: sudo apt-get update && sudo apt-get install -y screen
+
+      - name: Start screen session with the selected task
+        run: |
+          if [ "${{ inputs.task_name }}" == "Task A" ]; then
+            screen -dmL -Logfile /tmp/task_a.log -S task_session bash -c 'for i in $(seq 1 ${INPUT_DURATION}); do echo "Running Task A - Tick $i"; sleep 1; done'
+          elif [ "${{ inputs.task_name }}" == "Task B" ]; then
+            screen -dmL -Logfile /tmp/task_b.log -S task_session bash -c 'for i in $(seq 1 ${INPUT_DURATION}); do echo "Running Task B - Tick $i"; sleep 1; done'
+          else
+            screen -dmL -Logfile /tmp/task_c.log -S task_session bash -c 'for i in $(seq 1 ${INPUT_DURATION}); do echo "Running Task C - Tick $i"; sleep 1; done'
+          fi
+
+      - name: Verify screen session is running
+        run: screen -ls
+
+      - name: Wait for session to complete with periodic messages
+        run: |
+          while screen -list | grep -q "task_session"; do
+            echo "Waiting for task session to finish..."
+            sleep 5
+          done
+
+      - name: Display final logs
+        run: |
+          if [ "${{ inputs.task_name }}" == "Task A" ]; then
+            cat /tmp/task_a.log
+          elif [ "${{ inputs.task_name }}" == "Task B" ]; then
+            cat /tmp/task_b.log
+          else
+            cat /tmp/task_c.log
+          fi
+
+      - name: Upload logs as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: task-log
+          path: |
+            /tmp/task_a.log
+            /tmp/task_b.log
+            /tmp/task_c.log
