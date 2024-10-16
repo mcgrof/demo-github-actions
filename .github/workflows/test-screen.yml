@@ -20,17 +20,11 @@ jobs:
         run: |
           screen -dmL -Logfile /tmp/test.log -S testsession bash -c 'for i in $(seq 1 ${INPUT_DURATION}); do echo "Tick $i"; sleep 1; done'
           screen -ls
-
-      - name: Wait for session to complete with periodic messages
-        run: |
           while screen -list | grep -q "testsession"; do
             echo "Waiting for screen session to finish..."
             sleep 5
           done
           cat /tmp/test.log
-
-      - name: Display final logs
-        run: cat /tmp/test.log
 
       - name: Upload screen log as artifact
         uses: actions/upload-artifact@v3
