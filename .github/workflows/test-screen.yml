@@ -1,0 +1,43 @@
+name: Test Screen Command
+
+on:
+  workflow_dispatch:  # Allows manual triggering via GitHub UI
+    inputs:
+      sleep_time:
+        description: 'Time to sleep (in seconds)'
+        required: true
+        default: '30'
+
+jobs:
+  test-screen:
+    runs-on: ubuntu-latest  # Change to 'self-hosted' if using your own runner
+
+    steps:
+      - name: Install screen
+        run: sudo apt-get update && sudo apt-get install -y screen
+
+      - name: Start screen session with command
+        run: |
+          screen -dmL -Logfile /tmp/test.log -S testsession bash -c 'echo "Running..."; sleep ${INPUT_SLEEP_TIME}; echo "Done!"; exec bash'
+
+      - name: Verify screen session is running
+        run: |
+          screen -ls
+
+      - name: Display initial logs
+        run: cat /tmp/test.log
+
+      - name: Wait for session to complete
+        run: |
+          while screen -list | grep -q "testsession"; do
+            sleep 5
+          done
+
+      - name: Display final logs
+        run: cat /tmp/test.log
+
+      - name: Upload screen log as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: screen-log
+          path: /tmp/test.log
