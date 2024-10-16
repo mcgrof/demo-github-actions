@@ -1,4 +1,4 @@
-name: Test Screen Command
+name: Test option menu
 
 on:
   workflow_dispatch:
