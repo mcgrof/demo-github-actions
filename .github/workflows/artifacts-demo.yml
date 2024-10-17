@@ -35,16 +35,13 @@ jobs:
           sed -i 's|^|${{ github.workspace }}/|' results.txt
           cat results.txt
 
-      - name: Debug check files that match FILE_GLOBS before upload
+      - name: Set environment variable for artifact paths
         run: |
-          while IFS= read -r glob; do
-            echo "Checking files for glob: $glob"
-            ls -l $glob || echo "No files found for $glob"
-          done < results.txt
+         FILE_PATHS=$(cat results.txt | tr '\n' ' ')
+         echo "FILE_PATHS=$FILE_PATHS" >> $GITHUB_ENV
 
-      - name: Upload files matching the globs as artifacts
+      - name: Upload files matching the prefixed paths as artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ci-results
-          path: |
-            $(cat results.txt | tr '\n' ',')
+          name: prefixed-files
+          path: ${{ env.FILE_PATHS }}
