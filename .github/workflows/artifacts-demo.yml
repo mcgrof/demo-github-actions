@@ -32,7 +32,7 @@ jobs:
           echo "files/*.txt" > results.txt
           echo "files/*.log" >> results.txt
           echo "empty_files" >> results.txt
-          sed -i 's|^|${{ github.workspace }}/|' results.txt
+          #sed -i 's|^|${{ github.workspace }}/|' results.txt
           cat results.txt
 
       - name: Set environment variable for artifact paths
