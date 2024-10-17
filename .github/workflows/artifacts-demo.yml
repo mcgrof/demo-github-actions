@@ -1,4 +1,4 @@
-name: try artifacts with globs
+name: Hello World Workflow with Globs Debugging
 
 on:
   push:
@@ -21,45 +21,29 @@ jobs:
           echo "This is file 3" > files/file3.log
           echo "This is file 4" > files/file4.log
 
-      - name: Create results.txt with a list of file globs
+      - name: Create another directory with empty files
+        run: |
+          mkdir -p empty_files
+          touch empty_files/empty1.txt
+          touch empty_files/empty2.txt
+
+      - name: Create results.txt with a list of file globs and directories
         run: |
           echo "files/*.txt" > results.txt
           echo "files/*.log" >> results.txt
+          echo "empty_files" >> results.txt
           cat results.txt
 
-      - name: Show all created files
+      - name: Debug check files that match FILE_GLOBS before upload
         run: |
-          ls -l files
-
-      - name: Populate only some files
-        run: |
-          # Populate only text files
-          echo "Updated content for file 1" > files/file1.txt
-          echo "Updated content for file 2" > files/file2.txt
-
-      - name: Set environment variable from results.txt
-        run: |
-          # Convert results.txt content into a space-separated string of globs
-          FILE_GLOBS=$(cat results.txt | tr '\n' ' ')
-          echo "FILE_GLOBS=$FILE_GLOBS" >> $GITHUB_ENV
-
-      - name: Check files with globs
-        run: |
-          # Check which files match the globs before uploading
-          echo "Matching files for globs:"
-          for glob in ${{ env.FILE_GLOBS }}; do
-            echo "Glob: $glob"
+          while IFS= read -r glob; do
+            echo "Checking files for glob: $glob"
             ls -l $glob || echo "No files found for $glob"
-          done
+          done < results.txt
 
       - name: Upload files matching the globs as artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: globbed-files
-          path: ${{ env.FILE_GLOBS }}
-
-      - name: Upload open coded artifacts 
-        uses: actions/upload-artifact@v4
-        with:
-          name: globbed-files-open-coded
-          path: files/*.txt
+          name: ci-results
+          path: |
+            $(cat results.txt | tr '\n' ',')
