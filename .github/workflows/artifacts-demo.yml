@@ -32,6 +32,7 @@ jobs:
           echo "files/*.txt" > results.txt
           echo "files/*.log" >> results.txt
           echo "empty_files" >> results.txt
+          sed -i 's|^|${{ github.workspace }}/|' results.txt
           cat results.txt
 
       - name: Debug check files that match FILE_GLOBS before upload
