@@ -1,4 +1,4 @@
-name: Hello World Workflow with Globs Debugging
+name: Hello World Workflow with Globs from results.txt
 
 on:
   push:
@@ -8,7 +8,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -32,16 +31,17 @@ jobs:
           echo "files/*.txt" > results.txt
           echo "files/*.log" >> results.txt
           echo "empty_files" >> results.txt
-          #sed -i 's|^|${{ github.workspace }}/|' results.txt
           cat results.txt
 
-      - name: Set environment variable for artifact paths
+      - name: Read results.txt and set environment variable
         run: |
-         FILE_PATHS=$(cat results.txt | tr '\n' ' ')
-         echo "FILE_PATHS=$FILE_PATHS" >> $GITHUB_ENV
+          FILE_PATHS=$(cat results.txt | tr '\n' '\n')
+          echo "FILE_PATHS<<EOF" >> $GITHUB_ENV
+          echo "$FILE_PATHS" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
-      - name: Upload files matching the prefixed paths as artifacts
+      - name: Upload files listed in results.txt as artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: prefixed-files
+          name: files-from-results
           path: ${{ env.FILE_PATHS }}
