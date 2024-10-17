@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Create some files
         run: |
@@ -57,3 +57,9 @@ jobs:
         with:
           name: globbed-files
           path: ${{ env.FILE_GLOBS }}
+
+      - name: Upload open coded artifacts 
+        uses: actions/upload-artifact@v4
+        with:
+          name: globbed-files
+          path: files/*.txt
