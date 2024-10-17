@@ -61,5 +61,5 @@ jobs:
       - name: Upload open coded artifacts 
         uses: actions/upload-artifact@v4
         with:
-          name: globbed-files
+          name: globbed-files-open-coded
           path: files/*.txt
