@@ -1,0 +1,59 @@
+name: try artifacts with globs
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Create some files
+        run: |
+          mkdir -p files
+          echo "This is file 1" > files/file1.txt
+          echo "This is file 2" > files/file2.txt
+          echo "This is file 3" > files/file3.log
+          echo "This is file 4" > files/file4.log
+
+      - name: Create results.txt with a list of file globs
+        run: |
+          echo "files/*.txt" > results.txt
+          echo "files/*.log" >> results.txt
+          cat results.txt
+
+      - name: Show all created files
+        run: |
+          ls -l files
+
+      - name: Populate only some files
+        run: |
+          # Populate only text files
+          echo "Updated content for file 1" > files/file1.txt
+          echo "Updated content for file 2" > files/file2.txt
+
+      - name: Set environment variable from results.txt
+        run: |
+          # Convert results.txt content into a space-separated string of globs
+          FILE_GLOBS=$(cat results.txt | tr '\n' ' ')
+          echo "FILE_GLOBS=$FILE_GLOBS" >> $GITHUB_ENV
+
+      - name: Check files with globs
+        run: |
+          # Check which files match the globs before uploading
+          echo "Matching files for globs:"
+          for glob in ${{ env.FILE_GLOBS }}; do
+            echo "Glob: $glob"
+            ls -l $glob || echo "No files found for $glob"
+          done
+
+      - name: Upload files matching the globs as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: globbed-files
+          path: ${{ env.FILE_GLOBS }}
