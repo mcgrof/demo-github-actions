@@ -3,44 +3,46 @@ name: Test option menu
 on:
   workflow_dispatch:
     inputs:
-      duration:
-        description: 'How long to run (in seconds)'
-        required: true
-        default: '30'
-      task_name:
-        description: 'Select the task to run'
-        required: true
+      defconfig:
+        description: "Select defconfig"
+        required: false
+        default: "ci-default"
         type: choice
         options:
-          - Task A
-          - Task B
-          - Task C
+          - "ci-default"
+          - "xfs_reflink_4k"
+          - "xfs_nocrc_4k"
+      soak:
+        description: "Select soak duration"
+        required: false
+        default: "No soak"
+        type: choice
+        options:
+          - "No soak"
+          - "Low - 30 minutes"
+          - "Mid - 1 hour"
+          - "High - 2.5 hours"
+          - "Pathological - 48 hours"
+      tests:
+        description: "Select additional test coverage"
+        required: false
+        default: "ci-default-test"
+        type: choice
+        options:
+          - "ci-default-test"
+          - "generic/003"
+          - "generic/751"
 
 jobs:
   test-screen:
     runs-on: ubuntu-latest
 
-    steps:
-      - name: Install screen
-        run: sudo apt-get update && sudo apt-get install -y screen
-
-      - name: Start screen session with the selected task
+      - name: Run nohup with unbuffered output
         run: |
-          if [ "${{ inputs.task_name }}" == "Task A" ]; then
-            screen -dmL -Logfile /tmp/task_a.log -S task_session bash -c 'for i in $(seq 1 ${INPUT_DURATION}); do echo "Running Task A - Tick $i"; sleep 1; done'
-          elif [ "${{ inputs.task_name }}" == "Task B" ]; then
-            screen -dmL -Logfile /tmp/task_b.log -S task_session bash -c 'for i in $(seq 1 ${INPUT_DURATION}); do echo "Running Task B - Tick $i"; sleep 1; done'
-          else
-            screen -dmL -Logfile /tmp/task_c.log -S task_session bash -c 'for i in $(seq 1 ${INPUT_DURATION}); do echo "Running Task C - Tick $i"; sleep 1; done'
-          fi
-
-      - name: Verify screen session is running
-        run: screen -ls
-
-      - name: Wait for session to complete with periodic messages
-        run: |
-          while screen -list | grep -q "task_session"; do
-            echo "Waiting for task session to finish..."
+          nohup stdbuf -oL bash -c 'for i in $(seq 1 30); do echo "$i: soak: ${{ github.event.inputs.defconfig }} ${{ github.event.inputs.soak }} ${{ github.event.inputs.tests }}"; sleep 1; done' > /tmp/test.log 2>&1 &
+          echo $! > /tmp/test.pid
+          while kill -0 $(cat /tmp/test.pid) 2> /dev/null; do
+            echo "Waiting for nohup session to finish..."
             sleep 5
           done
 
