@@ -37,12 +37,12 @@ on:
       timeout_minutes:
         description: "Timeout in seconds"
         required: true
-        default: "6"
+        default: 6
         type: choice
         options:
-          - "6"
-          - "12"
-          - "18"
+          - 6
+          - 12
+          - 18
 
 jobs:
   test-options:
