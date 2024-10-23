@@ -48,7 +48,7 @@ jobs:
   test-options:
     name: Test options menu
     runs-on: ubuntu-latest
-    timeout-minutes: ${{ github.event.inputs.timeout_minutes }}
+    timeout-minutes: ${{ fromJson(github.event.inputs.timeout_minutes || '6') }}
     steps:
       - name: use all options
         run: |
