@@ -34,15 +34,25 @@ on:
           - "ci-default-test"
           - "generic/003"
           - "generic/751"
+      timeout_minutes:
+        description: "Timeout in seconds"
+        required: true
+        default: "6"
+        type: choice
+        options:
+          - "6"
+          - "12"
+          - "18"
 
 jobs:
   test-options:
     name: Test options menu
     runs-on: ubuntu-latest
-    timeout-minutes: 21600  # 1 month
+    timeout-minutes: ${{ github.event.inputs.timeout_minutes }}
     steps:
       - name: use all options
         run: |
+          echo "Timeout: ${{ github.event.inputs.timeout_minutes }} minutes"
           soak=1
           if [ "${{ github.event.inputs.soak}}" == "No soak" ]; then
             soak=1
