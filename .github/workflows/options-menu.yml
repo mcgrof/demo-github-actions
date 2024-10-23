@@ -35,7 +35,7 @@ on:
           - "generic/003"
           - "generic/751"
       timeout_minutes:
-        description: "Timeout in seconds"
+        description: "Timeout in minutes"
         required: true
         default: 6
         type: choice
