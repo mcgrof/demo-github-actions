@@ -34,6 +34,12 @@ on:
           - "ci-default-test"
           - "generic/003"
           - "generic/751"
+          - "custom"
+     custom_tests:
+        description: "Enter custom test(s) (space or comma-separated: 'test1 test2' or 'test1,test2')"
+        required: false
+        type: string
+        default: ""
       timeout_minutes:
         description: "Timeout in minutes"
         required: true
@@ -50,6 +56,25 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: ${{ fromJson(github.event.inputs.timeout_minutes || '6') }}
     steps:
+      - name: Process test selection
+        id: process-tests
+        run: |
+          if [ "${{ github.event.inputs.tests }}" == "custom" ]; then
+            if [ -n "${{ github.event.inputs.custom_tests }}" ]; then
+              # Replace commas with spaces and collapse multiple spaces into single spaces
+              TESTS=$(echo "${{ github.event.inputs.custom_tests }}" | tr ',' ' ' | tr -s ' ')
+              # Trim leading and trailing whitespace
+              TESTS=$(echo "$TESTS" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+              echo "SELECTED_TESTS=$TESTS" >> $GITHUB_ENV
+              echo "Custom tests selected: $TESTS"
+            else
+              echo "No custom tests provided, falling back to default"
+              echo "SELECTED_TESTS=ci-default-test" >> $GITHUB_ENV
+            fi
+          else
+            echo "SELECTED_TESTS=${{ github.event.inputs.tests }}" >> $GITHUB_ENV
+            echo "Predefined test selected: ${{ github.event.inputs.tests }}"
+          fi
       - name: use all options
         run: |
           echo "Timeout: ${{ fromJson(github.event.inputs.timeout_minutes || '6') }} minutes"
