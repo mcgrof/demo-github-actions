@@ -34,9 +34,9 @@ on:
           - "generic/751"
 
 jobs:
-  test-screen:
+  test-options:
+    name: Test options menu
     runs-on: ubuntu-latest
-
       - name: Run nohup with unbuffered output
         run: |
           nohup stdbuf -oL bash -c 'for i in $(seq 1 30); do echo "$i: soak: ${{ github.event.inputs.defconfig }} ${{ github.event.inputs.soak }} ${{ github.event.inputs.tests }}"; sleep 1; done' > /tmp/test.log 2>&1 &
@@ -48,12 +48,14 @@ jobs:
 
       - name: Display final logs
         run: |
-          if [ "${{ inputs.task_name }}" == "Task A" ]; then
-            cat /tmp/task_a.log
-          elif [ "${{ inputs.task_name }}" == "Task B" ]; then
-            cat /tmp/task_b.log
+          if [ "${{ github.event.inputs.defconfig }}" == "ci-default" ]; then
+            echo "${{ github.event.inputs.defconfig }} was used" > /tmp/ci-default.txt
+          elif [ "${{ github.event.inputs.defconfig }}" == "xfs_reflink_4k" ]; then
+            echo "${{ github.event.inputs.defconfig }} was used" > /tmp/xfs_reflink_4k.txt
+          elif [ "${{ github.event.inputs.defconfig }}" == "xfs_nocrc_4k" ]; then
+            echo "${{ github.event.inputs.defconfig }} was used" > /tmp/xfs_nocrc_4k.txt
           else
-            cat /tmp/task_c.log
+            echo "No option was used for defconfig" > /tmp/empty.txt
           fi
 
       - name: Upload logs as artifact
@@ -61,6 +63,8 @@ jobs:
         with:
           name: task-log
           path: |
-            /tmp/task_a.log
-            /tmp/task_b.log
-            /tmp/task_c.log
+            /tmp/test.log
+            /tmp/ci-default.txt
+            /tmp/xfs_reflink_4k.txt
+            /tmp/xfs_nocrc_4k.txt
+            /tmp/empty.txt
