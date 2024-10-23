@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 21600  # 1 month
     steps:
-      - name: Run nohup with unbuffered output
+      - name: use all options
         run: |
           nohup stdbuf -oL bash -c 'for i in $(seq 1 30); do echo "$i: soak: ${{ github.event.inputs.defconfig }} ${{ github.event.inputs.soak }} ${{ github.event.inputs.tests }}"; sleep 1; done' > /tmp/test.log 2>&1 &
           echo $! > /tmp/test.pid
@@ -48,7 +48,7 @@ jobs:
             sleep 5
           done
 
-      - name: Display final logs
+      - name: Write option logs
         run: |
           if [ "${{ github.event.inputs.defconfig }}" == "ci-default" ]; then
             echo "${{ github.event.inputs.defconfig }} was used" > /tmp/ci-default.txt
@@ -60,7 +60,7 @@ jobs:
             echo "No option was used for defconfig" > /tmp/empty.txt
           fi
 
-      - name: Upload logs as artifact
+      - name: Upload option logs as artifacts
         uses: actions/upload-artifact@v3
         with:
           name: task-log
