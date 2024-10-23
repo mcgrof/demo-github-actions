@@ -1,4 +1,4 @@
-name: Hello World Workflow with Globs from results.txt
+name: Artifact demo
 
 on:
   push:

@@ -1,4 +1,4 @@
-name: Test option menu
+name: Options demo
 
 on:
   workflow_dispatch:

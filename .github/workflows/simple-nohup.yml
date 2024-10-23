@@ -1,4 +1,4 @@
-name: Test Simple Nohup Command
+name: Simple nohup demo
 
 on:
   push:
