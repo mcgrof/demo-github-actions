@@ -37,6 +37,8 @@ jobs:
   test-options:
     name: Test options menu
     runs-on: ubuntu-latest
+    timeout-minutes: 21600  # 1 month
+    steps:
       - name: Run nohup with unbuffered output
         run: |
           nohup stdbuf -oL bash -c 'for i in $(seq 1 30); do echo "$i: soak: ${{ github.event.inputs.defconfig }} ${{ github.event.inputs.soak }} ${{ github.event.inputs.tests }}"; sleep 1; done' > /tmp/test.log 2>&1 &
