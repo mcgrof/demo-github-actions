@@ -52,7 +52,7 @@ jobs:
     steps:
       - name: use all options
         run: |
-          echo "Timeout: ${{ github.event.inputs.timeout_minutes }} minutes"
+          echo "Timeout: ${{ fromJson(github.event.inputs.timeout_minutes || '6') }} minutes"
           soak=1
           if [ "${{ github.event.inputs.soak}}" == "No soak" ]; then
             soak=1
