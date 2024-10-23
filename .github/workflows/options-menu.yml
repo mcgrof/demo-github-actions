@@ -36,9 +36,10 @@ on:
           - "generic/751"
 
 jobs:
-  test-demo-options:
+  test-options:
     name: Test options menu
     runs-on: ubuntu-latest
+    timeout-minutes: 21600  # 1 month
     steps:
       - name: use all options
         run: |
