@@ -35,11 +35,11 @@ on:
           - "generic/003"
           - "generic/751"
           - "custom"
-       custom_tests:
-          description: "Enter custom test(s) (space or comma-separated: 'test1 test2' or 'test1,test2')"
-          required: false
-          type: string
-          default: ""
+      custom_tests:
+        description: "Enter custom test(s) (space or comma-separated: 'test1 test2' or 'test1,test2')"
+        required: false
+        type: string
+        default: ""
       timeout_minutes:
         description: "Timeout in minutes"
         required: true
